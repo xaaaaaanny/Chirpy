@@ -8,3 +8,7 @@ RETURNING *;
 
 -- name: ResetUsers :exec
 DELETE FROM users;
+
+-- name: GetFirstID :one
+SELECT id FROM users
+LIMIT 1;

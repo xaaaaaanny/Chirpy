@@ -29,6 +29,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	userDB, err := cfg.db.CreateUser(r.Context(), params.Email)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Can`t create user")
+		return
 	}
 	userJSON := User{
 		ID:        userDB.ID,
@@ -36,6 +37,8 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		UpdatedAt: userDB.UpdatedAt,
 		Email:     userDB.Email,
 	}
+
+	cfg.user_id = userJSON.ID
 
 	respondWithJSON(w, http.StatusCreated, userJSON)
 }

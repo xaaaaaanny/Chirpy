@@ -7,7 +7,9 @@ import (
 )
 
 func respondWithError(w http.ResponseWriter, statusCode int, message string) {
-	resp := returnVals{
+	resp := struct {
+		Error string
+	}{
 		Error: message,
 	}
 

@@ -13,7 +13,8 @@ func (cfg *apiConfig) handlerReset(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	cfg.db.ResetUsers(context.Background())
+	cfg.db.ResetChirps(context.Background())
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hits reset to 0.\nUsers deleted\n"))
+	w.Write([]byte("Hits reset to 0.\nUsers and chirps deleted\n"))
 }
