@@ -39,11 +39,6 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 
 	params.Body = clearText(params.Body)
 
-	//userID, err := cfg.db.GetFirstID(r.Context())
-	//if err != nil {
-	//	return
-	//}
-
 	arg := database.CreateChirpParams{
 		Body:   params.Body,
 		UserID: cfg.user_id,
