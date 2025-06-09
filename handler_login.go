@@ -2,14 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/xaaaaaanny/Chirpy/internal/auth"
+	"github.com/xaaaaaanny/Chirpy/internal/database"
 	"net/http"
+	"time"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	type Params struct {
-		Email    string
-		Password string
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	params := &Params{}
 
@@ -31,12 +34,28 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg.user_id = userDB.ID
+	token, err := auth.MakeJWT(userDB.ID, cfg.secret, 60*time.Minute)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("can`t make JWT: %v", err))
+		return
+	}
+
+	refreshToken, err := cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token:     auth.MakeRefreshToken(),
+		UserID:    userDB.ID,
+		ExpiresAt: time.Now().Add(60 * 24 * time.Hour),
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Can`t create refresh token")
+	}
+	//cfg.user_id = userDB.ID
 
 	respondWithJSON(w, http.StatusOK, User{
-		ID:        userDB.ID,
-		CreatedAt: userDB.CreatedAt,
-		UpdatedAt: userDB.UpdatedAt,
-		Email:     userDB.Email,
+		ID:           userDB.ID,
+		CreatedAt:    userDB.CreatedAt,
+		UpdatedAt:    userDB.UpdatedAt,
+		Email:        userDB.Email,
+		Token:        token,
+		RefreshToken: refreshToken.Token,
 	})
 }
